@@ -32,6 +32,7 @@ public class EdgeType {
   // operand
   public static final Type LEFT = type("left");
   public static final Type RIGHT = type("right");
+  public static final Type EXTEND = type("extend");
 
   // control
   // if

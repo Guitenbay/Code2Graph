@@ -1321,9 +1321,11 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
       case ASTNode.INFIX_EXPRESSION:
         {
           InfixExpression iex = (InfixExpression) exp;
+          List list = iex.extendedOperands();
+
           root.setType(NodeType.INFIX);
           root.setSymbol(iex.getOperator().toString());
-          root.setArity(2);
+          root.setArity(2 + list.size());
 
           graph.addEdge(
               root,
@@ -1333,6 +1335,12 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
               root,
               parseExpression(iex.getRightOperand()),
               new Edge(GraphUtil.eid(), EdgeType.RIGHT));
+          for (Object o : list) {
+            graph.addEdge(
+                    root,
+                    parseExpression((Expression) o),
+                    new Edge(GraphUtil.eid(), EdgeType.EXTEND));
+          }
           break;
         }
       case ASTNode.PREFIX_EXPRESSION:
