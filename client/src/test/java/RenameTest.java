@@ -40,76 +40,76 @@ public class RenameTest {
 
   @Test
   public void testRename1() throws IOException, ParserConfigurationException, SAXException {
-    repoName = "NewPipe";
-    configPath =
-        System.getProperty("user.dir") + "/src/main/resources/" + framework + "/config.yml";
-    repoPath = System.getProperty("user.home") + "/coding/xll/" + framework + "/" + repoName;
-    cachePath = System.getProperty("user.home") + "/coding/xll/cache/" + framework + "/" + repoName;
-
-    File cacheDir = new File(cachePath);
-    if (!cacheDir.exists()) {
-      initCache(framework, repoPath, cachePath);
-    }
-
-    Range range = new Range("73:20~73:45", "app/src/main/res/layout/list_stream_playlist_item.xml");
-    RenameResult res =
-        calcRenameResult(
-            repoPath,
-            cachePath,
-            "@+id\\/itemAdditionalDetails",
-            range,
-            "@+id\\/itemAdditionalAny",
-            configPath);
-    assertThat(res.getStatus()).isEqualTo(RenameStatusCode.SUCCESS);
-    System.out.println(res.getRenameInfoList());
+//    repoName = "NewPipe";
+//    configPath =
+//        System.getProperty("user.dir") + "/src/main/resources/" + framework + "/config.yml";
+//    repoPath = System.getProperty("user.home") + "/coding/xll/" + framework + "/" + repoName;
+//    cachePath = System.getProperty("user.home") + "/coding/xll/cache/" + framework + "/" + repoName;
+//
+//    File cacheDir = new File(cachePath);
+//    if (!cacheDir.exists()) {
+//      initCache(framework, repoPath, cachePath);
+//    }
+//
+//    Range range = new Range("73:20~73:45", "app/src/main/res/layout/list_stream_playlist_item.xml");
+//    RenameResult res =
+//        calcRenameResult(
+//            repoPath,
+//            cachePath,
+//            "@+id\\/itemAdditionalDetails",
+//            range,
+//            "@+id\\/itemAdditionalAny",
+//            configPath);
+//    assertThat(res.getStatus()).isEqualTo(RenameStatusCode.SUCCESS);
+//    System.out.println(res.getRenameInfoList());
   }
 
   @Test
   public void testRename2() throws IOException, ParserConfigurationException, SAXException {
-    repoName = "GSYVideoPlayer";
-    configPath =
-        System.getProperty("user.dir") + "/src/main/resources/" + framework + "/config.yml";
-    repoPath = System.getProperty("user.home") + "/coding/xll/" + framework + "/" + repoName;
-    cachePath = System.getProperty("user.home") + "/coding/xll/cache/" + framework + "/" + repoName;
-
-    File cacheDir = new File(cachePath);
-    if (!cacheDir.exists()) {
-      initCache(framework, repoPath, cachePath);
-    }
-
-    Range range =
-        new Range(
-            "51:28~51:52", "gsyVideoPlayer-java/src/main/res/layout/video_progress_dialog.xml");
-    RenameResult res =
-        calcRenameResult(
-            repoPath,
-            cachePath,
-            "@+id\\/duration_progressbar",
-            range,
-            "@+id\\/duration_progress_bar",
-            configPath);
-    assertThat(res.getStatus()).isEqualTo(RenameStatusCode.SUCCESS);
-    System.out.println(res.getRenameInfoList());
+//    repoName = "GSYVideoPlayer";
+//    configPath =
+//        System.getProperty("user.dir") + "/src/main/resources/" + framework + "/config.yml";
+//    repoPath = System.getProperty("user.home") + "/coding/xll/" + framework + "/" + repoName;
+//    cachePath = System.getProperty("user.home") + "/coding/xll/cache/" + framework + "/" + repoName;
+//
+//    File cacheDir = new File(cachePath);
+//    if (!cacheDir.exists()) {
+//      initCache(framework, repoPath, cachePath);
+//    }
+//
+//    Range range =
+//        new Range(
+//            "51:28~51:52", "gsyVideoPlayer-java/src/main/res/layout/video_progress_dialog.xml");
+//    RenameResult res =
+//        calcRenameResult(
+//            repoPath,
+//            cachePath,
+//            "@+id\\/duration_progressbar",
+//            range,
+//            "@+id\\/duration_progress_bar",
+//            configPath);
+//    assertThat(res.getStatus()).isEqualTo(RenameStatusCode.SUCCESS);
+//    System.out.println(res.getRenameInfoList());
   }
 
   @Test
   public void testRename3() throws IOException, ParserConfigurationException, SAXException {
-    repoName = "XposedInstaller";
-    configPath =
-        System.getProperty("user.dir") + "/src/main/resources/" + framework + "/config.yml";
-    repoPath = System.getProperty("user.home") + "/coding/xll/" + framework + "/" + repoName;
-    cachePath = System.getProperty("user.home") + "/coding/xll/cache/" + framework + "/" + repoName;
-
-    File cacheDir = new File(cachePath);
-    if (!cacheDir.exists()) {
-      initCache(framework, repoPath, cachePath);
-    }
-
-    Range range = new Range("9:20~9:31", "app/src/main/res/layout/toolbar.xml");
-    RenameResult res =
-        calcRenameResult(
-            repoPath, cachePath, "@+id\\/toolbar", range, "@+id\\/tool_bar", configPath);
-    assertThat(res.getStatus()).isEqualTo(RenameStatusCode.SUCCESS);
-    System.out.println(res.getRenameInfoList());
+//    repoName = "XposedInstaller";
+//    configPath =
+//        System.getProperty("user.dir") + "/src/main/resources/" + framework + "/config.yml";
+//    repoPath = System.getProperty("user.home") + "/coding/xll/" + framework + "/" + repoName;
+//    cachePath = System.getProperty("user.home") + "/coding/xll/cache/" + framework + "/" + repoName;
+//
+//    File cacheDir = new File(cachePath);
+//    if (!cacheDir.exists()) {
+//      initCache(framework, repoPath, cachePath);
+//    }
+//
+//    Range range = new Range("9:20~9:31", "app/src/main/res/layout/toolbar.xml");
+//    RenameResult res =
+//        calcRenameResult(
+//            repoPath, cachePath, "@+id\\/toolbar", range, "@+id\\/tool_bar", configPath);
+//    assertThat(res.getStatus()).isEqualTo(RenameStatusCode.SUCCESS);
+//    System.out.println(res.getRenameInfoList());
   }
 }

@@ -40,8 +40,35 @@ public class Main {
     client.compareGraphs(tempDir, "ed4faad");
   }
 
+  public static final String WORK_PATH = System.getProperty("user.home")
+          + File.separator
+          + "Desktop"
+          + File.separator
+          + "fdse"
+          + File.separator
+          + "atomic-code-change";
+  public static final String REPO_BASE_PATH = System.getProperty("user.home")
+          + File.separator
+          + "Desktop"
+          + File.separator
+          + "fdse"
+          + File.separator
+          + "repository";
+  public static final String C2G_TEMP_BASE_DIR = WORK_PATH
+          + File.separator
+          + "c2g"
+          + File.separator
+          + "temp";
+  public static final String PDG_BASE_DIR = WORK_PATH
+          + File.separator
+          + "pdg-temp";
+
   private static void testFiles() throws NonexistPathException {
-    Code2Graph client = new Code2Graph("Code2Graph", System.getProperty("user.dir"));
+//    Code2Graph client = new Code2Graph("Code2Graph", System.getProperty("user.dir"));
+    String REPO_NAME = "test-helloworld";
+    String REPO_PATH = REPO_BASE_PATH
+            + File.separator + REPO_NAME;
+    Code2Graph client = new Code2Graph(REPO_NAME, REPO_PATH);
 
     client.addSupportedLanguage(Language.JAVA);
 
@@ -49,12 +76,19 @@ public class Main {
     //    Generator generator = new JdtGenerator();
 
     // from files
-    List<String> filePaths = new ArrayList<>();
-    filePaths.add(
-        client.getRepoPath()
-            + File.separator
-            + "client/src/main/java/edu/pku/code2graph/client/Code2Graph.java");
-    Graph<Node, Edge> graph = client.generateGraph(filePaths);
-    GraphVizExporter.printAsDot(graph);
+//    List<String> filePaths = new ArrayList<>();
+//    filePaths.add(
+//        client.getRepoPath()
+//            + File.separator
+//            + "client/src/main/java/edu/pku/code2graph/client/Code2Graph.java");
+//    Graph<Node, Edge> graph = client.generateGraph(filePaths);
+    Graph<Node, Edge> graph = client.generateGraph();
+
+//    for (Node node : graph.vertexSet()) {
+//      System.out.println(node.getSnippet());
+//    }
+
+//    GraphVizExporter.printAsDot(graph);
+    GraphVizExporter.saveAsDot(graph, C2G_TEMP_BASE_DIR + File.separator + "helloworld-impl-proj.dt");
   }
 }
