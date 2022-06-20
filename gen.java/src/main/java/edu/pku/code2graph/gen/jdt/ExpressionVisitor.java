@@ -35,6 +35,11 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
   private JsqlGenerator generator = new JsqlGenerator();
   private Map<String, List<ElementNode>> identifierMap = generator.getIdentifiers();
 
+  public static void setNodeExtendsAttrs(Node node, String filePath, ASTNode astNode) {
+    node.setAttribute("filePath", filePath);
+    node.setAttribute("astNode", astNode);
+  }
+
   @Override
   public void preVisit(ASTNode node) {
     if (node instanceof TypeDeclaration) {
@@ -61,6 +66,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
             FileUtil.getFileNameFromPath(filePath),
             filePath,
             uri);
+    setNodeExtendsAttrs(this.cuNode, uriFilePath, cu);
     graph.addVertex(cuNode);
     GraphUtil.addNode(cuNode);
     logger.debug("Start Parsing {}", uriFilePath);
@@ -82,7 +88,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
     ElementNode node =
         createElementNode(
             type, td.toString(), td.getName().toString(), qname, JdtService.getIdentifier(td));
-
+    setNodeExtendsAttrs(node, uriFilePath, td);
     node.setRange(computeRange(td));
 
     if (tdBinding != null) {
@@ -112,6 +118,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
             atd.getName().toString(),
             qname,
             JdtService.getIdentifier(atd));
+    setNodeExtendsAttrs(node, uriFilePath, atd);
     node.setRange(computeRange(atd));
 
     if (binding != null) {
@@ -141,7 +148,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
             ed.getName().toString(),
             qname,
             JdtService.getIdentifier(ed));
-
+    setNodeExtendsAttrs(node, uriFilePath, ed);
     node.setRange(computeRange(ed));
 
     parseAnnotations(ed.modifiers(), node);
@@ -197,6 +204,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
     String parentQName = node.getQualifiedName();
     pushScope(parentQName);
     RelationNode bodyNode = new RelationNode(GraphUtil.nid(), Language.JAVA, NodeType.BLOCK, "{}");
+    setNodeExtendsAttrs(bodyNode, uriFilePath, typeDeclaration);
     bodyNode.setRange(computeRange(typeDeclaration.bodyDeclarations()));
 
     graph.addVertex(bodyNode);
@@ -216,7 +224,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   atmd.getName().toString(),
                   parentQName + "." + atmd.getName(),
                   JdtService.getIdentifier(atmd));
-
+          setNodeExtendsAttrs(atmdNode, uriFilePath, atmd);
           atmdNode.setRange(computeRange(atmd));
           graph.addEdge(bodyNode, atmdNode, new Edge(GraphUtil.eid(), EdgeType.CHILD));
         }
@@ -235,7 +243,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   cst.getName().toString(),
                   parentQName + "." + cst.getName().toString(),
                   JdtService.getIdentifier(cst));
-
+          setNodeExtendsAttrs(cstNode, uriFilePath, cst);
           cstNode.setRange(computeRange(cst));
           graph.addEdge(bodyNode, cstNode, new Edge(GraphUtil.eid(), EdgeType.CHILD));
         }
@@ -260,7 +268,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   node.getName() + ".INIT",
                   qname,
                   JdtService.getIdentifier(initializer));
-
+          setNodeExtendsAttrs(initNode, uriFilePath, initializer);
           initNode.setRange(computeRange(initializer));
 
           graph.addEdge(bodyNode, initNode, new Edge(GraphUtil.eid(), EdgeType.CHILD));
@@ -313,7 +321,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
               (layer) -> {
                 layer.put("varType", fd.getType().toString());
               });
-
+      setNodeExtendsAttrs(node, uriFilePath, fragment);
       node.setRange(computeRange(fragment));
 
       // annotations
@@ -349,7 +357,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
     ElementNode node =
         createElementNode(
             NodeType.METHOD_DECLARATION, md.toString(), name, qname, JdtService.getIdentifier(md));
-
+    setNodeExtendsAttrs(node, uriFilePath, md);
     node.setRange(computeRange(md));
 
     pushScope(name);
@@ -388,7 +396,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                 (layer) -> {
                   layer.put("varType", p.getType().toString());
                 });
-
+        setNodeExtendsAttrs(pn, uriFilePath, p);
         pn.setRange(computeRange(p));
         graph.addEdge(node, pn, new Edge(GraphUtil.eid(), EdgeType.PARAMETER));
 
@@ -473,6 +481,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
               NodeType.ANNOTATION,
               annotation.toString(),
               identifier);
+      setNodeExtendsAttrs(node, uriFilePath, annotation);
       node.setRange(computeRange(annotation));
       node.setUri(createIdentifier("@" + identifier));
       GraphUtil.addNode(node);
@@ -548,6 +557,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
    */
   protected Optional<RelationNode> parseBodyBlock(Block body) {
     RelationNode root = new RelationNode(GraphUtil.nid(), Language.JAVA, NodeType.BLOCK, "{}");
+    setNodeExtendsAttrs(root, uriFilePath, body);
     root.setRange(computeRange(body));
     graph.addVertex(root);
 
@@ -605,6 +615,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           } else {
             RelationNode node =
                 new RelationNode(GraphUtil.nid(), Language.JAVA, NodeType.BLOCK, "{}");
+            setNodeExtendsAttrs(node, uriFilePath, stmt);
             node.setRange(computeRange(stmt));
             graph.addVertex(node);
 
@@ -626,6 +637,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   Language.JAVA,
                   NodeType.SUPER_CONSTRUCTOR_INVOCATION,
                   stmt.toString());
+          setNodeExtendsAttrs(node, uriFilePath, stmt);
           node.setRange(computeRange(stmt));
           graph.addVertex(node);
 
@@ -648,6 +660,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           RelationNode node =
               new RelationNode(
                   GraphUtil.nid(), Language.JAVA, NodeType.CONSTRUCTOR_INVOCATION, stmt.toString());
+          setNodeExtendsAttrs(node, uriFilePath, stmt);
           node.setRange(computeRange(stmt));
           graph.addVertex(node);
 
@@ -700,7 +713,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                       (layer) -> {
                         layer.put("varType", vd.getType().toString());
                       });
-
+              setNodeExtendsAttrs(node, uriFilePath, fragment);
               node.setRange(computeRange(fragment));
 
               usePool.add(
@@ -736,6 +749,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           RelationNode node =
               new RelationNode(
                   GraphUtil.nid(), Language.JAVA, NodeType.IF_STATEMENT, ifStatement.toString());
+          setNodeExtendsAttrs(node, uriFilePath, ifStatement);
           node.setRange(computeRange(stmt));
 
           graph.addVertex(node);
@@ -762,6 +776,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           RelationNode node =
               new RelationNode(
                   GraphUtil.nid(), Language.JAVA, NodeType.FOR_STATEMENT, forStatement.toString());
+          setNodeExtendsAttrs(node, uriFilePath, forStatement);
           node.setRange(computeRange(stmt));
 
           graph.addVertex(node);
@@ -805,6 +820,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   Language.JAVA,
                   NodeType.ENHANCED_FOR_STATEMENT,
                   eForStatement.toString());
+          setNodeExtendsAttrs(node, uriFilePath, eForStatement);
           node.setRange(computeRange(stmt));
 
           graph.addVertex(node);
@@ -825,7 +841,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   para_name,
                   para_qname,
                   JdtService.getIdentifier(p));
-
+          setNodeExtendsAttrs(pn, uriFilePath, p);
           pn.setRange(computeRange(p));
           graph.addEdge(node, pn, new Edge(GraphUtil.eid(), EdgeType.ELEMENT));
 
@@ -850,6 +866,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           RelationNode node =
               new RelationNode(
                   GraphUtil.nid(), Language.JAVA, NodeType.DO_STATEMENT, doStatement.toString());
+          setNodeExtendsAttrs(node, uriFilePath, doStatement);
           node.setRange(computeRange(stmt));
 
           graph.addVertex(node);
@@ -877,6 +894,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   Language.JAVA,
                   NodeType.WHILE_STATEMENT,
                   whileStatement.toString());
+          setNodeExtendsAttrs(node, uriFilePath, whileStatement);
           node.setRange(computeRange(stmt));
 
           graph.addVertex(node);
@@ -901,6 +919,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           RelationNode node =
               new RelationNode(
                   GraphUtil.nid(), Language.JAVA, NodeType.TRY_STATEMENT, tryStatement.toString());
+          setNodeExtendsAttrs(node, uriFilePath, tryStatement);
           node.setRange(computeRange(stmt));
 
           graph.addVertex(node);
@@ -921,6 +940,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                         Language.JAVA,
                         NodeType.CATCH_CLAUSE,
                         catchClause.toString());
+                setNodeExtendsAttrs(catchNode, uriFilePath, catchClause);
                 catchNode.setRange(computeRange(catchClause));
 
                 graph.addVertex(catchNode);
@@ -956,6 +976,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   Language.JAVA,
                   NodeType.THROW_STATEMENT,
                   throwStatement.toString());
+          setNodeExtendsAttrs(node, uriFilePath, throwStatement);
           node.setRange(computeRange(stmt));
 
           graph.addVertex(node);
@@ -976,6 +997,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   Language.JAVA,
                   NodeType.SWITCH_STATEMENT,
                   switchStatement.toString());
+          setNodeExtendsAttrs(node, uriFilePath, switchStatement);
           node.setRange(computeRange(stmt));
 
           graph.addVertex(node);
@@ -996,6 +1018,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                       Language.JAVA,
                       NodeType.SWITCH_CASE,
                       ((SwitchCase) nxt).toString());
+              setNodeExtendsAttrs(caseNode, uriFilePath, switchCase);
               caseNode.setRange(computeRange((SwitchCase) nxt));
 
               graph.addVertex(caseNode);
@@ -1041,6 +1064,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
    */
   protected RelationNode parseExpression(Expression exp) {
     RelationNode root = new RelationNode(GraphUtil.nid(), Language.JAVA);
+    setNodeExtendsAttrs(root, uriFilePath, exp);
     root.setRange(computeRange(exp));
     root.setSnippet(exp.toString());
     graph.addVertex(root);
@@ -1153,7 +1177,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                     name,
                     qname,
                     JdtService.getIdentifier(fragment));
-
+            setNodeExtendsAttrs(n, uriFilePath, fragment);
             n.setRange(computeRange(fragment));
             graph.addEdge(root, n, new Edge(GraphUtil.eid(), EdgeType.CHILD));
 

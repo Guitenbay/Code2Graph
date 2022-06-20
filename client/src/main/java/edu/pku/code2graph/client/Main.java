@@ -85,7 +85,7 @@ public class Main {
     Graph<Node, Edge> graph = client.generateGraph();
 
 //    for (Node node : graph.vertexSet()) {
-//      System.out.println(node.getSnippet());
+//      System.out.println(node.getAttribute("filePath"));
 //    }
 
 //    GraphVizExporter.printAsDot(graph);
