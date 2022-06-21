@@ -1230,6 +1230,11 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                     root,
                     EdgeType.DATA_TYPE,
                     constructorBinding.getDeclaringClass().getQualifiedName()));
+            usePool.add(
+                Triple.of(
+                    root,
+                    EdgeType.CALLEE,
+                    JdtService.getMethodQNameFromBinding(constructorBinding.getMethodDeclaration())));
           }
           String identifier = cic.getType().toString();
           pushScope(identifier);
