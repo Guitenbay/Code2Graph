@@ -1095,6 +1095,9 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
       case ASTNode.QUALIFIED_NAME:
         {
           QualifiedName name = (QualifiedName) exp;
+          SimpleName simpleName = name.getName();
+          Edge edge = new Edge(GraphUtil.eid(), EdgeType.REFERENCE);
+          graph.addEdge(root, parseExpression(simpleName), edge);
           root.setType(NodeType.QUALIFIED_NAME);
           root.setUri(createIdentifier(name.getFullyQualifiedName()));
           GraphUtil.addNode(root);
