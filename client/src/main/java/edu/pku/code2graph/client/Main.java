@@ -65,7 +65,7 @@ public class Main {
 
   private static void testFiles() throws NonexistPathException {
 //    Code2Graph client = new Code2Graph("Code2Graph", System.getProperty("user.dir"));
-    String REPO_NAME = "test-global-v";
+    String REPO_NAME = "test-arraylength";
     String REPO_PATH = REPO_BASE_PATH
             + File.separator + REPO_NAME;
     Code2Graph client = new Code2Graph(REPO_NAME, REPO_PATH);
@@ -80,7 +80,7 @@ public class Main {
 //    filePaths.add(
 //        client.getRepoPath()
 //            + File.separator
-//            + "client/src/main/java/edu/pku/code2graph/client/Code2Graph.java");
+//            + "src/test/java/com/derbysoft/spitfire/fastjson/TestFastJson.java");
 //    Graph<Node, Edge> graph = client.generateGraph(filePaths);
     Graph<Node, Edge> graph = client.generateGraph();
 
@@ -89,6 +89,6 @@ public class Main {
 //    }
 
 //    GraphVizExporter.printAsDot(graph);
-    GraphVizExporter.saveAsDot(graph, C2G_TEMP_BASE_DIR + File.separator + "helloworld-global-proj.dt");
+    GraphVizExporter.saveAsDot(graph, C2G_TEMP_BASE_DIR + File.separator + "fastjson.dt");
   }
 }

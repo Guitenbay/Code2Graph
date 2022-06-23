@@ -1118,13 +1118,17 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
             IVariableBinding varBinding = (IVariableBinding) binding;
             if (varBinding.isField()) {
               root.setType(NodeType.FIELD_ACCESS);
-              usePool.add(
-                  Triple.of(
-                      root,
-                      EdgeType.REFERENCE,
-                      varBinding.getDeclaringClass().getQualifiedName()
-                          + "."
-                          + varBinding.getName()));
+              // 对于 .length / .class 这种 Java 编译时添加的属性，它在 ast 树中没有 Class
+              // 因此需要判断 varBinding.getDeclaringClass() 是否为 null
+              if (varBinding.getDeclaringClass() != null) {
+                usePool.add(
+                    Triple.of(
+                        root,
+                        EdgeType.REFERENCE,
+                        varBinding.getDeclaringClass().getQualifiedName()
+                            + "."
+                            + varBinding.getName()));
+              }
             } else if (varBinding.isParameter()) {
               root.setType(NodeType.PARAMETER_ACCESS);
               usePool.add(
