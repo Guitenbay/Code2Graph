@@ -65,7 +65,7 @@ public class Main {
 
   private static void testFiles() throws NonexistPathException {
 //    Code2Graph client = new Code2Graph("Code2Graph", System.getProperty("user.dir"));
-    String REPO_NAME = "test-arraylength";
+    String REPO_NAME = "fastjson";
     String REPO_PATH = REPO_BASE_PATH
             + File.separator + REPO_NAME;
     Code2Graph client = new Code2Graph(REPO_NAME, REPO_PATH);
@@ -80,9 +80,9 @@ public class Main {
 //    filePaths.add(
 //        client.getRepoPath()
 //            + File.separator
-//            + "src/test/java/com/derbysoft/spitfire/fastjson/TestFastJson.java");
+//            + "src/main/java/com/alibaba/fastjson/PropertyNamingStrategy.java");
 //    Graph<Node, Edge> graph = client.generateGraph(filePaths);
-    Graph<Node, Edge> graph = client.generateGraph();
+    Graph<Node, Edge> graph = client.generateGraphWithExclude("src/test");
 
 //    for (Node node : graph.vertexSet()) {
 //      System.out.println(node.getAttribute("filePath"));

@@ -142,6 +142,17 @@ public class Code2Graph {
         FileUtil.listFilePathsInLanguages(this.repoPath, this.supportedLanguages);
     return generateGraph(ext2FilePaths);
   }
+  /**
+   * Construct graph from a code repository, exclude some dir
+   *
+   * @return
+   */
+  public Graph<Node, Edge> generateGraphWithExclude(String excludePath) {
+    // collect the path list of source files in supported languages
+    Map<String, List<String>> ext2FilePaths =
+            FileUtil.listFilePathsInLanguagesExclude(this.repoPath, this.supportedLanguages, excludePath);
+    return generateGraph(ext2FilePaths);
+  }
 
   /**
    * Construct graph from a source file directory

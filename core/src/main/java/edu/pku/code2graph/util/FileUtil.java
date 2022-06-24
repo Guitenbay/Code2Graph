@@ -306,6 +306,44 @@ public class FileUtil {
     return result;
   }
 
+  /**
+   * List { extension : [filePath] } under a folder/directory
+   *
+   * @param dir
+   * @param languages
+   * @return
+   */
+  public static Map<String, List<String>> listFilePathsInLanguagesExclude(
+          String dir, Set<Language> languages, String excludeString) {
+    if (languages.isEmpty()) {
+      return new HashMap<>();
+    }
+    Map<String, List<String>> result = new LinkedHashMap<>();
+
+    Set<String> extensions =
+            languages.stream()
+                    .map(language -> language.extension.replace(".", ""))
+                    .collect(Collectors.toSet());
+    try (Stream<Path> walk = Files.walk(Paths.get(dir))) {
+      walk.filter(Files::isRegularFile)
+              .map(Path::toString)
+              .forEach(
+                      path -> {
+                        if (path.contains(excludeString)) return;
+                        String ext = FilenameUtils.getExtension(path);
+                        if (extensions.contains(ext)) {
+                          if (!result.containsKey(ext)) {
+                            result.put(ext, new ArrayList<>());
+                          }
+                          result.get(ext).add(path);
+                        }
+                      });
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return result;
+  }
+
   public static String getPathFromURL(URL url) {
     if (url == null) {
       return "";
