@@ -5,6 +5,7 @@ import edu.pku.code2graph.io.GraphVizExporter;
 import edu.pku.code2graph.model.Edge;
 import edu.pku.code2graph.model.Language;
 import edu.pku.code2graph.model.Node;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.jgrapht.Graph;
 
@@ -80,7 +81,7 @@ public class Main {
 //    filePaths.add(
 //        client.getRepoPath()
 //            + File.separator
-//            + "src/main/java/com/alibaba/fastjson/PropertyNamingStrategy.java");
+//            + "src/main/java/com/alibaba/fastjson/serializer/FieldSerializer.java");
 //    Graph<Node, Edge> graph = client.generateGraph(filePaths);
     Graph<Node, Edge> graph = client.generateGraphWithExclude("src/test");
 
@@ -89,6 +90,7 @@ public class Main {
 //    }
 
 //    GraphVizExporter.printAsDot(graph);
+//    GraphVizExporter.exportAsDot(graph);
     GraphVizExporter.saveAsDot(graph, C2G_TEMP_BASE_DIR + File.separator + "fastjson.dt");
   }
 }

@@ -2,6 +2,7 @@ package edu.pku.code2graph.io;
 
 import edu.pku.code2graph.model.*;
 import edu.pku.code2graph.util.FileUtil;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.nio.Attribute;
 import org.jgrapht.nio.AttributeType;
@@ -17,6 +18,7 @@ import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 /** Convert graph to dot format of GraphViz */
 public class GraphVizExporter {
@@ -50,18 +52,25 @@ public class GraphVizExporter {
           if (uri != null) {
             String output = uri.toString();
             map.put(
-                "uri", DefaultAttribute.createAttribute(output.substring(1, output.length() - 1)));
+                "uri", DefaultAttribute.createAttribute(output));
           }
 
           if (!print || uri == null) {
             // new jgrapht API has no dedicated label provider setter
             map.put("type", DefaultAttribute.createAttribute(v.getType().toString()));
+            String label = "";
+              if (v instanceof ElementNode) {
+                  label = StringEscapeUtils.escapeJava(((ElementNode) v).getName());
+              } else {
+                  label = StringEscapeUtils.escapeJava(((RelationNode) v).getSymbol());
+              }
+              // DOTExporter 内部会对 " 进行处理
+              // 因此先将 \" 转回 "，由 DOTExporter 处理
+              label = label.replaceAll("\\\\\"", Matcher.quoteReplacement("\""));
             map.put(
                 "label",
                 DefaultAttribute.createAttribute(
-                    v instanceof ElementNode
-                        ? v.getType().name + "(" + ((ElementNode) v).getName() + ")"
-                        : v.getType().name + "(" + ((RelationNode) v).getSymbol() + ")"));
+                        v.getType().name + "(" + label + ")"));
             map.put("shape", new NodeShapeAttribute(v));
             map.put(
                 "style",
@@ -129,7 +138,7 @@ public class GraphVizExporter {
               String output = uri.toString();
               map.put(
                   "uri",
-                  DefaultAttribute.createAttribute(output.substring(1, output.length() - 1)));
+                  DefaultAttribute.createAttribute(output));
             }
           }
 
