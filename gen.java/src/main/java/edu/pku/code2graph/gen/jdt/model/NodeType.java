@@ -61,4 +61,7 @@ public class NodeType {
   public static final Type SWITCH_STATEMENT = type("switch_statement");
   public static final Type TRY_STATEMENT = type("try_statement");
   public static final Type THROW_STATEMENT = type("throw_statement");
+
+  // inner list node
+  public static final Type INNER_LIST = type("inner_list");
 }

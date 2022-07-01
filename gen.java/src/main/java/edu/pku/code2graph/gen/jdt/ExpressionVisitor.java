@@ -67,7 +67,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
             filePath,
             uri);
     setNodeExtendsAttrs(this.cuNode, uriFilePath, cu);
-    graph.addVertex(cuNode);
+    addNode2GraphWithoutInner(cuNode);
     GraphUtil.addNode(cuNode);
     logger.debug("Start Parsing {}", uriFilePath);
     return true;
@@ -207,7 +207,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
     setNodeExtendsAttrs(bodyNode, uriFilePath, typeDeclaration);
     bodyNode.setRange(computeRange(typeDeclaration.bodyDeclarations()));
 
-    graph.addVertex(bodyNode);
+    addNode2GraphWithoutInner(bodyNode);
     defPool.put(parentQName + ".BLOCK", bodyNode);
     graph.addEdge(node, bodyNode, new Edge(GraphUtil.eid(), EdgeType.BODY));
 
@@ -486,7 +486,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
       node.setUri(createIdentifier("@" + identifier));
       GraphUtil.addNode(node);
 
-      graph.addVertex(node);
+      addNode2GraphWithoutInner(node);
       graph.addEdge(annotatedNode, node, new Edge(GraphUtil.eid(), EdgeType.ANNOTATION));
 
       pushScope("@" + identifier);
@@ -559,7 +559,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
     RelationNode root = new RelationNode(GraphUtil.nid(), Language.JAVA, NodeType.BLOCK, "{}");
     setNodeExtendsAttrs(root, uriFilePath, body);
     root.setRange(computeRange(body));
-    graph.addVertex(root);
+    addNode2GraphWithoutInner(root);
 
     List<Statement> statementList = body.statements();
     List<Statement> statements = new ArrayList<>();
@@ -578,7 +578,8 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
       }
 
       parseStatement(stmt)
-          .ifPresent(node -> graph.addEdge(root, node, new Edge(GraphUtil.eid(), EdgeType.CHILD)));
+          .ifPresent(node ->
+                  addEdge2GraphWithNode(root, node, new Edge(GraphUtil.eid(), EdgeType.CHILD)));
     }
     return Optional.of(root);
   }
@@ -599,6 +600,24 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
     return node;
   }
 
+  protected void addEdge2GraphWithNode(Node node, Node child, Edge edge) {
+    if (child.getType() == NodeType.INNER_LIST) {
+      ((ArrayList<Node>) child.getAttribute("list").orElseThrow()).forEach(item -> {
+        graph.addEdge(node, item, edge);
+      });
+    } else {
+      graph.addEdge(node, child, edge);
+    }
+  }
+
+  protected void addNode2GraphWithoutInner(Node child) {
+    if (child.getType() == NodeType.INNER_LIST) {
+      // do nothing
+    } else {
+      graph.addVertex(child);
+    }
+  }
+
   /**
    * Parse statement and return the created node
    *
@@ -617,13 +636,13 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                 new RelationNode(GraphUtil.nid(), Language.JAVA, NodeType.BLOCK, "{}");
             setNodeExtendsAttrs(node, uriFilePath, stmt);
             node.setRange(computeRange(stmt));
-            graph.addVertex(node);
+            addNode2GraphWithoutInner(node);
 
             for (Object st : block.statements()) {
               parseStatement((Statement) st)
                   .ifPresent(
                       child ->
-                          graph.addEdge(node, child, new Edge(GraphUtil.eid(), EdgeType.CHILD)));
+                        addEdge2GraphWithNode(node, child, new Edge(GraphUtil.eid(), EdgeType.CHILD)));
             }
             return Optional.of(node);
           }
@@ -639,7 +658,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   stmt.toString());
           setNodeExtendsAttrs(node, uriFilePath, stmt);
           node.setRange(computeRange(stmt));
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           SuperConstructorInvocation ci = (SuperConstructorInvocation) stmt;
           IMethodBinding constructorBinding = ci.resolveConstructorBinding();
@@ -662,7 +681,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                   GraphUtil.nid(), Language.JAVA, NodeType.CONSTRUCTOR_INVOCATION, stmt.toString());
           setNodeExtendsAttrs(node, uriFilePath, stmt);
           node.setRange(computeRange(stmt));
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           ConstructorInvocation ci = (ConstructorInvocation) stmt;
           IMethodBinding constructorBinding = ci.resolveConstructorBinding();
@@ -685,7 +704,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
             pushScope("return");
             RelationNode node = parseExpression(expression);
             popScope();
-            graph.addVertex(node);
+            addNode2GraphWithoutInner(node);
             return Optional.of(node);
           }
           break;
@@ -695,8 +714,12 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           // local var declaration
           VariableDeclarationStatement vd = (VariableDeclarationStatement) stmt;
 
-          for (Iterator iter = vd.fragments().iterator(); iter.hasNext(); ) {
-            VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
+          Node inner = new ElementNode(
+                  0, Language.JAVA, NodeType.INNER_LIST,
+                  "", "inner_list", "inner_list", new URI(false, uriFilePath));
+          inner.setAttribute("list", new ArrayList<Node>());
+          for (Object item : vd.fragments()) {
+            VariableDeclarationFragment fragment = (VariableDeclarationFragment) item;
             IVariableBinding binding = fragment.resolveBinding();
             String name = fragment.getName().getFullyQualifiedName();
             String qname = name;
@@ -726,10 +749,12 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                     new Edge(GraphUtil.eid(), EdgeType.INITIALIZER));
               }
 
-              return Optional.of(node);
+              ((ArrayList) inner.getAttribute("list").orElseThrow()).add(node);
+
             }
           }
-          break;
+          return Optional.of(inner);
+//          break;
         }
       case ASTNode.EXPRESSION_STATEMENT:
         {
@@ -752,7 +777,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           setNodeExtendsAttrs(node, uriFilePath, ifStatement);
           node.setRange(computeRange(stmt));
 
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           if (ifStatement.getExpression() != null) {
             RelationNode cond = parseExpression(ifStatement.getExpression());
@@ -761,12 +786,12 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           if (ifStatement.getThenStatement() != null) {
             parseStatement(ifStatement.getThenStatement())
                 .ifPresent(
-                    then -> graph.addEdge(node, then, new Edge(GraphUtil.eid(), EdgeType.THEN)));
+                    then -> addEdge2GraphWithNode(node, then, new Edge(GraphUtil.eid(), EdgeType.THEN)));
           }
           if (ifStatement.getElseStatement() != null) {
             parseStatement(ifStatement.getElseStatement())
                 .ifPresent(
-                    els -> graph.addEdge(node, els, new Edge(GraphUtil.eid(), EdgeType.ELSE)));
+                    els -> addEdge2GraphWithNode(node, els, new Edge(GraphUtil.eid(), EdgeType.ELSE)));
           }
           return Optional.of(node);
         }
@@ -779,7 +804,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           setNodeExtendsAttrs(node, uriFilePath, forStatement);
           node.setRange(computeRange(stmt));
 
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           forStatement
               .initializers()
@@ -806,7 +831,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           }
           parseStatement(forStatement.getBody())
               .ifPresent(
-                  body -> graph.addEdge(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
+                  body -> addEdge2GraphWithNode(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
 
           return Optional.of(node);
         }
@@ -823,7 +848,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           setNodeExtendsAttrs(node, uriFilePath, eForStatement);
           node.setRange(computeRange(stmt));
 
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           SingleVariableDeclaration p = eForStatement.getParameter();
           String para_name = p.getName().getFullyQualifiedName();
@@ -856,7 +881,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
               new Edge(GraphUtil.eid(), EdgeType.VALUES));
           parseStatement(eForStatement.getBody())
               .ifPresent(
-                  body -> graph.addEdge(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
+                  body -> addEdge2GraphWithNode(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
 
           return Optional.of(node);
         }
@@ -869,7 +894,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           setNodeExtendsAttrs(node, uriFilePath, doStatement);
           node.setRange(computeRange(stmt));
 
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           Expression expression = doStatement.getExpression();
           if (expression != null) {
@@ -881,7 +906,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           if (doBody != null) {
             parseStatement(doBody)
                 .ifPresent(
-                    body -> graph.addEdge(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
+                    body -> addEdge2GraphWithNode(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
           }
           return Optional.of(node);
         }
@@ -897,7 +922,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           setNodeExtendsAttrs(node, uriFilePath, whileStatement);
           node.setRange(computeRange(stmt));
 
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           Expression expression = whileStatement.getExpression();
           if (expression != null) {
@@ -909,7 +934,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           if (whileBody != null) {
             parseStatement(whileBody)
                 .ifPresent(
-                    body -> graph.addEdge(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
+                    body -> addEdge2GraphWithNode(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
           }
           return Optional.of(node);
         }
@@ -922,13 +947,13 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           setNodeExtendsAttrs(node, uriFilePath, tryStatement);
           node.setRange(computeRange(stmt));
 
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           Statement tryBody = tryStatement.getBody();
           if (tryBody != null) {
             parseStatement(tryBody)
                 .ifPresent(
-                    body -> graph.addEdge(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
+                    body -> addEdge2GraphWithNode(node, body, new Edge(GraphUtil.eid(), EdgeType.BODY)));
 
             List<CatchClause> catchClauses = tryStatement.catchClauses();
             if (catchClauses != null && !catchClauses.isEmpty()) {
@@ -943,7 +968,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                 setNodeExtendsAttrs(catchNode, uriFilePath, catchClause);
                 catchNode.setRange(computeRange(catchClause));
 
-                graph.addVertex(catchNode);
+                addNode2GraphWithoutInner(catchNode);
                 graph.addEdge(node, catchNode, new Edge(GraphUtil.eid(), EdgeType.CATCH));
 
                 if (binding != null) {
@@ -979,7 +1004,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           setNodeExtendsAttrs(node, uriFilePath, throwStatement);
           node.setRange(computeRange(stmt));
 
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           if (throwStatement.getExpression() != null) {
             RelationNode thr = parseExpression(throwStatement.getExpression());
@@ -1000,7 +1025,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           setNodeExtendsAttrs(node, uriFilePath, switchStatement);
           node.setRange(computeRange(stmt));
 
-          graph.addVertex(node);
+          addNode2GraphWithoutInner(node);
 
           Expression expression = switchStatement.getExpression();
           if (expression != null) {
@@ -1021,11 +1046,11 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
               setNodeExtendsAttrs(caseNode, uriFilePath, switchCase);
               caseNode.setRange(computeRange((SwitchCase) nxt));
 
-              graph.addVertex(caseNode);
+              addNode2GraphWithoutInner(caseNode);
               for (Object exx : switchCase.expressions()) {
                 if (exx instanceof Expression) {
                   RelationNode condition = parseExpression((Expression) exx);
-                  graph.addVertex(condition);
+                  addNode2GraphWithoutInner(condition);
                   graph.addEdge(caseNode, condition, new Edge(GraphUtil.eid(), EdgeType.CONDITION));
                 }
               }
@@ -1041,8 +1066,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                 } else if (nxxt instanceof Statement) {
                   parseStatement((Statement) nxxt)
                       .ifPresent(
-                          then ->
-                              graph.addEdge(
+                          then -> addEdge2GraphWithNode(
                                   caseNode, then, new Edge(GraphUtil.eid(), EdgeType.THEN)));
                 }
               }
@@ -1067,7 +1091,7 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
     setNodeExtendsAttrs(root, uriFilePath, exp);
     root.setRange(computeRange(exp));
     root.setSnippet(exp.toString());
-    graph.addVertex(root);
+    addNode2GraphWithoutInner(root);
 
     // simple name may be self-field access
     switch (exp.getNodeType()) {

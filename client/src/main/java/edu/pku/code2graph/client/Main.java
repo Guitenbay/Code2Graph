@@ -66,7 +66,7 @@ public class Main {
 
   private static void testFiles() throws NonexistPathException {
 //    Code2Graph client = new Code2Graph("Code2Graph", System.getProperty("user.dir"));
-    String REPO_NAME = "test-similar-var";
+    String REPO_NAME = "test-pdg";
     String REPO_PATH = REPO_BASE_PATH
             + File.separator + REPO_NAME;
     Code2Graph client = new Code2Graph(REPO_NAME, REPO_PATH);
@@ -91,6 +91,6 @@ public class Main {
 
 //    GraphVizExporter.printAsDot(graph);
 //    GraphVizExporter.exportAsDot(graph);
-    GraphVizExporter.saveAsDot(graph, C2G_TEMP_BASE_DIR + File.separator + "test-similar-var.dt");
+    GraphVizExporter.saveAsDot(graph, C2G_TEMP_BASE_DIR + File.separator + "test-pdg.dt");
   }
 }

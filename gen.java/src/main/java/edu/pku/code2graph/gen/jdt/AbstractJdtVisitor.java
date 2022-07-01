@@ -1,5 +1,6 @@
 package edu.pku.code2graph.gen.jdt;
 
+import edu.pku.code2graph.gen.jdt.model.NodeType;
 import edu.pku.code2graph.model.*;
 import edu.pku.code2graph.util.FileUtil;
 import edu.pku.code2graph.util.GraphUtil;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractJdtVisitor extends ASTVisitor {
   protected Logger logger = LoggerFactory.getLogger(AbstractJdtVisitor.class);
