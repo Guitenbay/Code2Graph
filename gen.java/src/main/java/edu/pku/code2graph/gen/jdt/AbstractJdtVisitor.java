@@ -105,7 +105,11 @@ public abstract class AbstractJdtVisitor extends ASTVisitor {
     } else {
       // greedily match as simple name
       return defPool.entrySet().stream()
-          .filter(e -> e.getKey().endsWith(name))
+          .filter(e -> {
+            List<String> defKeys = Util.splitKey(e.getKey());
+            if (defKeys.size() <= 0) return false;
+            return defKeys.get(defKeys.size() - 1).equals(name);
+          })
           .map(Map.Entry::getValue)
           .findFirst();
     }
