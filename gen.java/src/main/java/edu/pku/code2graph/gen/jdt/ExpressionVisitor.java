@@ -1092,6 +1092,22 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
           GraphUtil.addNode(root);
           break;
         }
+      case ASTNode.ARRAY_ACCESS:
+        {
+          root.setType(NodeType.ARRAY_ACCESS);
+          ArrayAccess arrayAccess = (ArrayAccess) exp;
+          Expression arrayName = arrayAccess.getArray();
+          Expression indexName = arrayAccess.getIndex();
+          graph.addEdge(
+                  root,
+                  parseExpression(arrayName),
+                  new Edge(GraphUtil.eid(), EdgeType.ARRAY));
+          graph.addEdge(
+                  root,
+                  parseExpression(indexName),
+                  new Edge(GraphUtil.eid(), EdgeType.INDEX));
+          break;
+        }
       case ASTNode.QUALIFIED_NAME:
         {
           QualifiedName name = (QualifiedName) exp;

@@ -37,6 +37,7 @@ public class NodeType {
   public static final Type POSTFIX = type("postfix");
 
   public static final Type FIELD_ACCESS = type("field_access");
+  public static final Type ARRAY_ACCESS = type("array_access");
   public static final Type SUPER_FIELD_ACCESS = type("super_field_access");
   public static final Type METHOD_INVOCATION = type("method_invocation");
   public static final Type SUPER_METHOD_INVOCATION = type("super_method_invocation");

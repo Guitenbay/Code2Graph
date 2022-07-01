@@ -29,6 +29,10 @@ public class EdgeType {
   public static final Type BODY = type("body");
   public static final Type CHILD = type("child");
 
+  // array
+  public static final Type ARRAY = type("array");
+  public static final Type INDEX = type("index");
+
   // operand
   public static final Type LEFT = type("left");
   public static final Type RIGHT = type("right");
