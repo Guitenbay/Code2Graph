@@ -315,7 +315,7 @@ public class FileUtil {
    */
   public static Map<String, List<String>> listFilePathsInLanguagesExclude(
           String dir, Set<Language> languages, String excludeString) {
-    if (languages.isEmpty()) {
+    if (excludeString == null || excludeString.equals("") || languages.isEmpty()) {
       return new HashMap<>();
     }
     Map<String, List<String>> result = new LinkedHashMap<>();
