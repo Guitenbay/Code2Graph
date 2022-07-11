@@ -315,7 +315,7 @@ public class FileUtil {
    */
   public static Map<String, List<String>> listFilePathsInLanguagesExclude(
           String dir, Set<Language> languages, String excludeString) {
-    if (excludeString == null || excludeString.equals("") || languages.isEmpty()) {
+    if (languages.isEmpty()) {
       return new HashMap<>();
     }
     Map<String, List<String>> result = new LinkedHashMap<>();
@@ -329,7 +329,7 @@ public class FileUtil {
               .map(Path::toString)
               .forEach(
                       path -> {
-                        if (path.contains(excludeString)) return;
+                        if (excludeString != null && path.contains(excludeString)) return;
                         String ext = FilenameUtils.getExtension(path);
                         if (extensions.contains(ext)) {
                           if (!result.containsKey(ext)) {
