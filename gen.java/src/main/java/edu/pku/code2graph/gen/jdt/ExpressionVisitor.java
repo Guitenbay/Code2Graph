@@ -974,6 +974,33 @@ public class ExpressionVisitor extends AbstractJdtVisitor {
                 if (binding != null) {
                   usePool.add(Triple.of(node, EdgeType.TARGET_TYPE, binding.getQualifiedName()));
                 }
+                // 添加 catch 的 Exception Declaration
+
+                SingleVariableDeclaration p = catchClause.getException();
+                String para_name = p.getName().getFullyQualifiedName();
+                String para_qname = para_name;
+                IVariableBinding b = p.resolveBinding();
+                if (b != null && b.getVariableDeclaration() != null) {
+                  para_qname =
+                          JdtService.getMethodQNameFromBinding(b.getDeclaringMethod()) + "." + para_name;
+                }
+
+                ElementNode pn =
+                        createElementNode(
+                                NodeType.VAR_DECLARATION,
+                                p.toString(),
+                                para_name,
+                                para_qname,
+                                JdtService.getIdentifier(p));
+                setNodeExtendsAttrs(pn, uriFilePath, p);
+                pn.setRange(computeRange(p));
+                graph.addEdge(catchNode, pn, new Edge(GraphUtil.eid(), EdgeType.PARAMETER));
+
+//                ITypeBinding paraBinding = p.getType().resolveBinding();
+//                if (paraBinding != null) {
+//                  usePool.add(Triple.of(pn, EdgeType.DATA_TYPE, paraBinding.getQualifiedName()));
+//                }
+
                 if (catchClause.getBody() != null) {
                   parseBodyBlock(catchClause.getBody())
                       .ifPresent(

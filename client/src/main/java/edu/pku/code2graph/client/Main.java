@@ -66,7 +66,7 @@ public class Main {
 
   private static void testFiles() throws NonexistPathException {
 //    Code2Graph client = new Code2Graph("Code2Graph", System.getProperty("user.dir"));
-    String REPO_NAME = "test-pdg";
+    String REPO_NAME = "test-try-catch";
     String REPO_PATH = REPO_BASE_PATH
             + File.separator + REPO_NAME;
     Code2Graph client = new Code2Graph(REPO_NAME, REPO_PATH);
@@ -81,16 +81,21 @@ public class Main {
 //    filePaths.add(
 //        client.getRepoPath()
 //            + File.separator
-//            + "src/main/java/com/alibaba/fastjson/parser/JSONLexerBase.java");
+//            + "src/main/java/com/alibaba/fastjson/util/TypeUtils.java");
 //    Graph<Node, Edge> graph = client.generateGraph(filePaths);
+
     Graph<Node, Edge> graph = client.generateGraphWithExclude("src/test");
 
-//    for (Node node : graph.vertexSet()) {
-//      System.out.println(node.getAttribute("filePath"));
-//    }
+    for (Node node : graph.vertexSet()) {
+      System.out.println(node.getAttribute("filePath"));
+//      if (node.getRange() != null && node.getRange().getStartLine() >= 2546 && node.getRange().getEndLine() <= 2558) {
+//        System.out.println(node.getSnippet());
+//        System.out.println(node.getRange().toString());
+//      }
+    }
 
-//    GraphVizExporter.printAsDot(graph);
+    GraphVizExporter.printAsDot(graph);
 //    GraphVizExporter.exportAsDot(graph);
-    GraphVizExporter.saveAsDot(graph, C2G_TEMP_BASE_DIR + File.separator + "test-pdg.dt");
+    GraphVizExporter.saveAsDot(graph, C2G_TEMP_BASE_DIR + File.separator + "test-try-catch.dt");
   }
 }

@@ -62,6 +62,6 @@ public class NodeType {
   public static final Type TRY_STATEMENT = type("try_statement");
   public static final Type THROW_STATEMENT = type("throw_statement");
 
-  // inner list node
+  // inner list node 处理一句代码声明多个变量的情况，这个 inner_list 节点本身没有意义，它的 list 属性里存储多个变量
   public static final Type INNER_LIST = type("inner_list");
 }
